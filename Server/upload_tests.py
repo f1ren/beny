@@ -1,13 +1,22 @@
 import base64
 from mechanize import Browser
 from bs4 import BeautifulSoup
+import sys
+import logging
+
+FORMAT = '%(pathname)s %(lineno)d %(message)s'
+logging.basicConfig(format=FORMAT)
+
+logger = logging.getLogger("mechanize")
+logger.addHandler(logging.StreamHandler(sys.stdout))
+logger.setLevel(logging.DEBUG)
 
 def saveResp(resp, stage):
     lines = resp.readlines()
-    open(r"E:\Projects\Beny\temp%d.htm" % stage, "wb").write("".join(lines))
+    open(r"E:\Projects\Beny\Server\temp%d.htm" % stage, "wb").write("".join(lines))
 
 url = r"http://physweb.bgu.ac.il/SUBMISSIONS/Scripts_bgu/upload.php?exnum=1&path=13A_Physics3_est_segel/"
-password = raw_input("password: ")
+password = "timP28gu"
 filename = r"E:\Dropbox\Uni\Physics3\HomeWork1.pdf"
 
 br = Browser()
