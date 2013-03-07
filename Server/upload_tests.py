@@ -1,5 +1,5 @@
 import base64
-from mechanize import Browser
+import mechanize
 from bs4 import BeautifulSoup
 import sys
 import logging
@@ -9,7 +9,7 @@ logging.basicConfig(format=FORMAT)
 
 logger = logging.getLogger("mechanize")
 logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def saveResp(resp, stage):
     lines = resp.readlines()
@@ -17,9 +17,9 @@ def saveResp(resp, stage):
 
 url = r"http://physweb.bgu.ac.il/SUBMISSIONS/Scripts_bgu/upload.php?exnum=1&path=13A_Physics3_est_segel/"
 password = "timP28gu"
-filename = r"E:\Dropbox\Uni\Physics3\HomeWork1.pdf"
+filename = r"E:\Dropbox\Uni\Physics3\empty.pdf"
 
-br = Browser()
+br = mechanize.Browser()
 
 # Authenticate upload page
 br.addheaders.append(('Authorization', 'Basic %s' % base64.encodestring('%s:%s' % ("navatm", password))))
@@ -30,13 +30,12 @@ saveResp(resp, 1)
 br.select_form(name="fileForm")
 br.form.add_file(open(filename,"rb"), 'text/plain', filename)
 resp = br.submit()
-saveResp(resp, 2)
-soup = BeautifulSoup(resp.get_data())
 
-# Fix HTML
-resp.set_data(soup.prettify(encoding='latin-1'))
+# Fix <br/> since XHTML is not supported by SGMLParser used by mechanize
+resp.set_data(resp.get_data().replace("<br/>", "<br>"))
+saveResp(resp, 2)
+
 br.set_response(resp)
-saveResp(resp, 3)
 
 # Confirm file
 br.select_form(name="ConfirmForm")
