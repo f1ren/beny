@@ -13,11 +13,11 @@ logger.setLevel(logging.INFO)
 
 def saveResp(resp, stage):
     lines = resp.readlines()
-    open(r"E:\Projects\Beny\Server\temp%d.htm" % stage, "wb").write("".join(lines))
+    open(r"E:\Projects\Beny\Server\Sandbox\temp%d.htm" % stage, "wb").write("".join(lines))
 
 url = r"http://physweb.bgu.ac.il/SUBMISSIONS/Scripts_bgu/upload.php?exnum=1&path=13A_Physics3_est_segel/"
-password = raw_input()
-filename = r"E:\Dropbox\Uni\Physics3\empty.pdf"
+password = raw_input("Password ")
+filename = r"E:\Projects\Beny\Server\Sandbox\empty.pdf"
 
 br = mechanize.Browser()
 

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2007 Google Inc.
 #
@@ -14,118 +14,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
-import string
-from datetime import datetime
-import webapp2
-import os
-
 from google.appengine.ext.webapp import template
-from google.appengine.ext import db
-from google.appengine.api import mail
+from google.appengine.ext.webapp import blobstore_handlers
+import os
+import webapp2
+import StringIO
 
-from StudentsAdmin import StudentsAdmin
-from Exceptions import *
-
-BGU_MAIL_SUFFIX = "@post.bgu.ac.il"
-
-def showMessage(handler, message):
-    path = os.path.join(os.path.dirname(__file__), 'message.htm')
-    template_values = {
-            'message': message,
-        }
-    handler.response.out.write(template.render(path, template_values))
+from PhysWeb import PhysWeb
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        pass
+        self.response.out.write('Hello world!')
 
-class CheckExamsHandler(webapp2.RequestHandler):
-    def get(self):
-        stdAdmin = StudentsAdmin(self.request.application_url)
-        self.response.out.write(stdAdmin.checkExams())
-
-class UnregisterHandler(webapp2.RequestHandler):
+class UploadHandler(webapp2.RequestHandler):
     def post(self):
-        username = self.request.get('username')
-        id_num = self.request.get('id_num')
-        email = self.request.get('username') + BGU_MAIL_SUFFIX
-        gql =   "SELECT * " \
-                "FROM Student " \
-                "WHERE username = '%s' " \
-                "AND id_num = '%s' " \
-                "AND email = '%s'" % (username, id_num, email)
-        logging.info(gql)
-        students =  db.GqlQuery(gql)
-        user_removed = False
-        for student in students:
-            student.delete()
-            showMessage(self, "ההרשמה בוטלה")
-            user_removed = True
-            logging.info("user %s unregistered" % username)
-        if not user_removed:
-            showMessage(self, "המשתמש לא נמצא")
-            logging.info("Could not find user %s" % username)
-
-class RegisterHandler(webapp2.RequestHandler):
-    def post(self):
-        stdAdmin = StudentsAdmin(self.request.application_url)
         try:
-            stdAdmin.register(
-                    self.request.get("user"),
-                    self.request.get("password"),
-                    self.request.get("id_num"),
-                    self.request.get("user") + BGU_MAIL_SUFFIX,
-                    #self.request.get("email"),
-                    )
-        except LoginException as e:
-            showMessage(self, e.message)
-            return
+            physWeb = PhysWeb()
+            uname = self.request.get('uname')
+            password = self.request.get('password')
+            path = self.request.get('path')
+            exnum = self.request.get('exnum')
+            exercise = StringIO.StringIO(self.request.get('exercise'))
+            physWeb.submitExercise(uname, password, path, exnum, exercise)
+            self.response.out.write("ok")
+        except AssertionError, e:
+            self.response.out.write(e.args)
 
-        showMessage(self, "ההרשמה הצליחה!")
-
-class ApprovalHandler(webapp2.RequestHandler):
-    def get(self):
-        email = self.request.get("email")
-        approval_code = self.request.get("code")
-        students =  db.GqlQuery("SELECT * "
-                                "FROM Student "
-                                "WHERE email = '%s'" % email)
-        found = False
-        for student in students:
-            if student.email_approval_code == approval_code:
-                student.email_approved = True
-                student.put()
-                self.response.out.write("Ok, all done.<br>"
-                    "You will be notified about changes in your exams.")
-                logging.info("address %s confirmed" % email)
-                found = True
-            else:
-                self.response.out.write("Wrong confirmation code.")
-        if not found:
-            self.response.out.write("Could not find %s" % email)
-
-app = webapp2.WSGIApplication([('/', MainHandler),
-                               ('/checkExams', CheckExamsHandler),
-                               ('/unregister', UnregisterHandler),
-                               ('/register', RegisterHandler),
-                               ('/approve', ApprovalHandler),
-                               ],
-                              debug=True)
-
-# Beny handlers
-class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
-    def get(self):
-        # TODO handle upload request
-        upload_files = self.get_uploads('file')
-        blob_info = upload_files[0]
-        return blob_info.key()
-        
-
-app = webapp2.WSGIApplication([('/', MainHandler),
-                               ('/checkExams', CheckExamsHandler),
-                               ('/unregister', UnregisterHandler),
-                               ('/register', RegisterHandler),
-                               ('/approve', ApprovalHandler),
-                               ],
+app = webapp2.WSGIApplication([
+                              ('/', MainHandler),
+                              ('/upload', UploadHandler),
+                              ],
                               debug=True)
