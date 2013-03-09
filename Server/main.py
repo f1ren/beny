@@ -112,3 +112,20 @@ app = webapp2.WSGIApplication([('/', MainHandler),
                                ('/approve', ApprovalHandler),
                                ],
                               debug=True)
+
+# Beny handlers
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+    def get(self):
+        # TODO handle upload request
+        upload_files = self.get_uploads('file')
+        blob_info = upload_files[0]
+        return blob_info.key()
+        
+
+app = webapp2.WSGIApplication([('/', MainHandler),
+                               ('/checkExams', CheckExamsHandler),
+                               ('/unregister', UnregisterHandler),
+                               ('/register', RegisterHandler),
+                               ('/approve', ApprovalHandler),
+                               ],
+                              debug=True)

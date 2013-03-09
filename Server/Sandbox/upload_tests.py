@@ -16,7 +16,7 @@ def saveResp(resp, stage):
     open(r"E:\Projects\Beny\Server\temp%d.htm" % stage, "wb").write("".join(lines))
 
 url = r"http://physweb.bgu.ac.il/SUBMISSIONS/Scripts_bgu/upload.php?exnum=1&path=13A_Physics3_est_segel/"
-password = "timP28gu"
+password = raw_input()
 filename = r"E:\Dropbox\Uni\Physics3\empty.pdf"
 
 br = mechanize.Browser()
