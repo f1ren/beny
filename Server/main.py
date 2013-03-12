@@ -40,10 +40,10 @@ def addCourse(name, url):
     course.name = name
     course.submitURL = url
     course.put()
-    
+	
 def removeCourse(name):
-    course_key = db.Key.from_path('Course', name)
-    db.delete(course_key)
+	course_key = db.Key.from_path('Course', name)
+	db.delete(course_key)
     
 def update():
     c = Courses()
@@ -58,26 +58,29 @@ class MainPage(webapp2.RequestHandler):
     self.response.out.write("""
           <form action="/add" method="post">
             <div><textarea name="name" rows="1" cols="30"></textarea></div>
-            <div><textarea name="url" rows="1" cols="30"></textarea></div>
-            <div><input type="submit" value="Add course"></div>
+			<div><textarea name="url" rows="1" cols="30"></textarea></div>
+			<div><input type="submit" value="Add course"></div>
           </form><br>
-          <form action="/remove" method="post">
+		  <form action="/remove" method="post">
             <div><textarea name="name" rows="1" cols="30"></textarea></div>
-            <div><input type="submit" value="Remove course"><input type="submit" value="Remove all courses"></div>
+			<div><input type="submit" value="Remove course"></div>
+          </form>
+          <form action="/removeAll" method="post">
+            <div><input type="submit" value="Remove all courses"></div>
           </form>
 
           <form action="/update" method="post">
-            <div><input type="submit" value="Update list"></div>
+			<div><input type="submit" value="Update list"></div>
           </form>
         </body>
       </html>""")
-    
+	
     courses = db.GqlQuery("SELECT * "
                             "FROM Course ")
 
     for course in courses:
       self.response.out.write('Course Name: <b>%s</b> URL: <b>%s</b><br>'
-                               % (course.name, cgi.escape(course.submitURL)))
+	                           % (course.name, cgi.escape(course.submitURL)))
 
 
 class AddCourse(webapp2.RequestHandler):
@@ -87,7 +90,7 @@ class AddCourse(webapp2.RequestHandler):
     addCourse(course_name, course_URL)
     self.redirect('/')
 
-    
+	
 class RemoveCourse(webapp2.RequestHandler):
   def post(self):
     course_name = self.request.get('name')
@@ -109,10 +112,6 @@ class Update(webapp2.RequestHandler):
     update()
     self.redirect('/')
     
-class AllCoursesHandler(webapp2.RequestHandler):
-    def get(self):
-        courses = db.GqlQuery("SELECT * " \
-                          "FROM Course")
 
 class UploadHandler(webapp2.RequestHandler):
     def post(self):
@@ -130,10 +129,8 @@ class UploadHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/add', AddCourse),
-                               ('/remove', RemoveCourse),
+							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
                                ('/update', Update),
-                               ('/upload', UploadHandler),
-                               ('/allCourses', AllCoursesHandler),
-                               ],
+                               ('/upload', UploadHandler)],
                                debug=True)
