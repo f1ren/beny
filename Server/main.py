@@ -20,6 +20,7 @@ from google.appengine.ext import db
 import os
 import webapp2
 import StringIO
+import json
 
 from PhysWeb import PhysWeb
 
@@ -72,17 +73,26 @@ class MainPage(webapp2.RequestHandler):
           <form action="/update" method="post">
 			<div><input type="submit" value="Update list"></div>
           </form>
+          <a href="/json">JSON output</a><br><br>
         </body>
       </html>""")
 	
     courses = db.GqlQuery("SELECT * "
                             "FROM Course ")
-
     for course in courses:
       self.response.out.write('Course Name: <b>%s</b> URL: <b>%s</b><br>'
 	                           % (course.name, cgi.escape(course.submitURL)))
-
-
+                               
+                               
+class JSON(webapp2.RequestHandler):
+  def get(self):
+    result = dict()
+    courses = db.GqlQuery("SELECT * FROM Course")
+    for course in courses:
+      result[course.name] = course.submitURL
+    self.response.out.write(json.dumps(result, sort_keys=True))
+    
+    
 class AddCourse(webapp2.RequestHandler):
   def post(self):
     course_name = self.request.get('name')
@@ -127,7 +137,9 @@ class UploadHandler(webapp2.RequestHandler):
         except AssertionError, e:
             self.response.out.write(e.args)
 
+            
 app = webapp2.WSGIApplication([('/', MainPage),
+                               ('/json', JSON),
                                ('/add', AddCourse),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
