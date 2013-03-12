@@ -13,10 +13,7 @@ class Courses(object):
     def __init__(self):
         pass
 
-    def getCoursesUrl(self):
-        return COURSES_LIST_URL
-
-    def getMainCoursesList(self, bs):
+    def _getMainCoursesList(self, bs):
         result = []
         for a in bs.findAll("a"):
             folder = a.getText()
@@ -25,7 +22,7 @@ class Courses(object):
         return result
 
     def getAllCourses(self):
-        mainCoursesList = self.getMainCoursesList(self._getBs(COURSES_LIST_URL))
+        mainCoursesList = self._getMainCoursesList(self._getBs(COURSES_LIST_URL))
         result = []
         for course in mainCoursesList:
             deepCourseList = self._getDeepCourseList(course)
@@ -52,7 +49,7 @@ class Courses(object):
                 if "index.php" in link:
                     if link == 'Index.html':
                         link = COURSES_LIST_URL + course + '/' + link
-                    result.append((a.getText(), link))
+                    result.append((course + " - " + a.getText(), link))
             return result
         else: 
             # This course has no sub-sites
@@ -72,8 +69,6 @@ class Courses(object):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    ch = open(r"E:\projects\Beny\Server\Sandbox\BGU Physics Department.htm", "rb").read()
     c = Courses()
-    ch = open(r"E:\projects\Beny\Server\Sandbox\Physics 3 - BGU Physics Department.htm", "rb").read()
     for course in c.getAllCourses():
         debug(course)
