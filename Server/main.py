@@ -63,7 +63,10 @@ class MainPage(webapp2.RequestHandler):
           </form><br>
 		  <form action="/remove" method="post">
             <div><textarea name="name" rows="1" cols="30"></textarea></div>
-			<div><input type="submit" value="Remove course"><input type="submit" value="Remove all courses"></div>
+			<div><input type="submit" value="Remove course"></div>
+          </form>
+          <form action="/removeAll" method="post">
+            <div><input type="submit" value="Remove all courses"></div>
           </form>
 
           <form action="/update" method="post">
@@ -128,7 +131,6 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/add', AddCourse),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
-                               ('/update', Update)],
-                               ('/upload', UploadHandler),
-                               ],
+                               ('/update', Update),
+                               ('/upload', UploadHandler)],
                                debug=True)
