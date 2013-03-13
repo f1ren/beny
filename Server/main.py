@@ -54,11 +54,12 @@ def update():
 
 class MainPage(webapp2.RequestHandler):
   def get(self):
-    self.response.out.write('<html><body>')
 
     self.response.out.write("""
+      <html>
+        <body>
           <form action="/add" method="post">
-            <div><textarea name="name" rows="1" cols="30"></textarea></div>
+            Course Name <textarea name="name" rows="1" cols="30"></textarea></div>
 			<div><textarea name="url" rows="1" cols="30"></textarea></div>
 			<div><input type="submit" value="Add course"></div>
           </form><br>
@@ -69,20 +70,30 @@ class MainPage(webapp2.RequestHandler):
           <form action="/removeAll" method="post">
             <div><input type="submit" value="Remove all courses"></div>
           </form>
-
           <form action="/update" method="post">
 			<div><input type="submit" value="Update list"></div>
           </form>
           <a href="/json">JSON output</a><br><br>
+          <form action="/removeSelected" method="post">
+            <div><input type="submit" value="Remove selected courses"></div>
+          </form>""")
+	
+    self.response.out.write("""
+          <div><table border="1"> 
+            <tr><th/><th>Course Name</th><th>Submission URL</th></tr>
+            """)
+    courses = db.GqlQuery("SELECT * FROM Course")
+    for course in courses:
+      self.response.out.write("""
+            <tr>
+              <td><input type="checkbox" name="course" value="%s"></td>
+              <td>%s</td><td>%s</td>
+            </tr>
+            """ % (course.name, course.name, cgi.escape(course.submitURL)))
+    self.response.out.write("""
+          </div></table>
         </body>
       </html>""")
-	
-    courses = db.GqlQuery("SELECT * "
-                            "FROM Course ")
-    for course in courses:
-      self.response.out.write('Course Name: <b>%s</b> URL: <b>%s</b><br>'
-	                           % (course.name, cgi.escape(course.submitURL)))
-                               
                                
 class JSON(webapp2.RequestHandler):
   def get(self):
@@ -116,6 +127,11 @@ class RemoveAllCourses(webapp2.RequestHandler):
       removeCourse(course.name)
     self.redirect('/')
     
+
+class RemoveSelected(webapp2.RequestHandler):
+  def post(self):
+    self.redirect('/')
+    
     
 class Update(webapp2.RequestHandler):
   def post(self):
@@ -143,6 +159,7 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/add', AddCourse),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
+                               ('/removeSelected', RemoveSelected),
                                ('/update', Update),
                                ('/upload', UploadHandler)],
                                debug=True)
