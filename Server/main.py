@@ -14,17 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import db
 import os
 import webapp2
 import StringIO
+import json
 
 from PhysWeb import PhysWeb
 
 import cgi
-import urllib
 from Courses import Courses
 
 
@@ -53,36 +51,60 @@ def update():
 
 class MainPage(webapp2.RequestHandler):
   def get(self):
-    self.response.out.write('<html><body>')
 
     self.response.out.write("""
+      <html>
+        <body>
           <form action="/add" method="post">
-            <div><textarea name="name" rows="1" cols="30"></textarea></div>
-			<div><textarea name="url" rows="1" cols="30"></textarea></div>
-			<div><input type="submit" value="Add course"></div>
-          </form><br>
+            <div>
+              Course Name <textarea name="name" rows="1" cols="30"></textarea><br>
+			  Course URL  <textarea name="url" rows="1" cols="30"></textarea><br>
+			  <input type="submit" value="Add course">
+            </div>
+          </form>
 		  <form action="/remove" method="post">
-            <div><textarea name="name" rows="1" cols="30"></textarea></div>
-			<div><input type="submit" value="Remove course"></div>
+            <div>
+              Course Name <textarea name="name" rows="1" cols="30"></textarea><br>
+			  <input type="submit" value="Remove course">
+            </div>
           </form>
           <form action="/removeAll" method="post">
             <div><input type="submit" value="Remove all courses"></div>
           </form>
-
           <form action="/update" method="post">
 			<div><input type="submit" value="Update list"></div>
           </form>
+          <a href="/json">JSON output</a><br><br>
+          <form action="/removeSelected" method="post">
+            <div><input type="submit" value="Remove selected courses"></div>
+          </form>""")
+	
+    self.response.out.write("""
+          <div><table border="1"> 
+            <tr><th/><th>Course Name</th><th>Submission URL</th></tr>
+            """)
+    courses = db.GqlQuery("SELECT * FROM Course")
+    for course in courses:
+      self.response.out.write("""
+            <tr>
+              <td><input type="checkbox" name="course" value="%s"></td>
+              <td>%s</td><td>%s</td>
+            </tr>
+            """ % (course.name, course.name, cgi.escape(course.submitURL)))
+    self.response.out.write("""
+          </div></table>
         </body>
       </html>""")
-	
-    courses = db.GqlQuery("SELECT * "
-                            "FROM Course ")
-
+                               
+class JSON(webapp2.RequestHandler):
+  def get(self):
+    result = dict()
+    courses = db.GqlQuery("SELECT * FROM Course")
     for course in courses:
-      self.response.out.write('Course Name: <b>%s</b> URL: <b>%s</b><br>'
-	                           % (course.name, cgi.escape(course.submitURL)))
-
-
+      result[course.name] = course.submitURL
+    self.response.out.write(json.dumps(result, sort_keys=True))
+    
+    
 class AddCourse(webapp2.RequestHandler):
   def post(self):
     course_name = self.request.get('name')
@@ -106,6 +128,11 @@ class RemoveAllCourses(webapp2.RequestHandler):
       removeCourse(course.name)
     self.redirect('/')
     
+
+class RemoveSelected(webapp2.RequestHandler):
+  def post(self):
+    self.redirect('/')
+    
     
 class Update(webapp2.RequestHandler):
   def post(self):
@@ -127,10 +154,13 @@ class UploadHandler(webapp2.RequestHandler):
         except AssertionError, e:
             self.response.out.write(e.args)
 
+            
 app = webapp2.WSGIApplication([('/', MainPage),
+                               ('/json', JSON),
                                ('/add', AddCourse),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
+                               ('/removeSelected', RemoveSelected),
                                ('/update', Update),
                                ('/upload', UploadHandler)],
                                debug=True)

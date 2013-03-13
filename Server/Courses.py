@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from google.appengine.api import urlfetch
 from bs4 import BeautifulSoup
 import urllib2
 import logging
@@ -34,7 +35,7 @@ class Courses(object):
         return COURSES_LIST_URL % course
 
     def _getHtml(self, url):
-        return urllib2.urlopen(url).read()
+        return urlfetch.fetch(url=url,deadline=60).content
 
     def _getBs(self, url):
         return BeautifulSoup(self._getHtml(url))
