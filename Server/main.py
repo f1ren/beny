@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import db
 import os
 import webapp2
@@ -25,7 +23,6 @@ import json
 from PhysWeb import PhysWeb
 
 import cgi
-import urllib
 from Courses import Courses
 
 
@@ -59,13 +56,17 @@ class MainPage(webapp2.RequestHandler):
       <html>
         <body>
           <form action="/add" method="post">
-            Course Name <textarea name="name" rows="1" cols="30"></textarea></div>
-			<div><textarea name="url" rows="1" cols="30"></textarea></div>
-			<div><input type="submit" value="Add course"></div>
-          </form><br>
+            <div>
+              Course Name <textarea name="name" rows="1" cols="30"></textarea><br>
+			  Course URL  <textarea name="url" rows="1" cols="30"></textarea><br>
+			  <input type="submit" value="Add course">
+            </div>
+          </form>
 		  <form action="/remove" method="post">
-            <div><textarea name="name" rows="1" cols="30"></textarea></div>
-			<div><input type="submit" value="Remove course"></div>
+            <div>
+              Course Name <textarea name="name" rows="1" cols="30"></textarea><br>
+			  <input type="submit" value="Remove course">
+            </div>
           </form>
           <form action="/removeAll" method="post">
             <div><input type="submit" value="Remove all courses"></div>
