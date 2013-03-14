@@ -25,6 +25,7 @@ from PhysWeb import PhysWeb
 
 import cgi
 from Courses import Courses
+from Exercises import Exercises
 
 
 class Course(db.Model):
@@ -34,7 +35,12 @@ class Course(db.Model):
 class Exercise(db.Model):
     course = db.StringProperty()
     number = db.StringProperty()
-    submitURL = db.StringProperty()
+    published = db.StringProperty()
+    topic = db.StringProperty()
+    exerciseUrl = db.StringProperty()
+    solutionUrl = db.StringProperty()
+    deadline = db.StringProperty()
+    uploadUrl = db.StringProperty()
 
 def addCourse(name, url):
     course_key = db.Key.from_path('Course', name) 
@@ -148,9 +154,18 @@ class UpdateCourses(webapp2.RequestHandler):
     
 class UpdateExercises(webapp2.RequestHandler):
     def get(self):
-        # TODO get all courses from DB
-        # TODO iterate all courses
-        # TODO put all exercises to DB
+        exercisesParser = Exercises()
+        courses = db.GqlQuery("SELECT * FROM Course")
+        for course in courses:
+            exercises =\
+                exercisesParser.getAllExercisesFromUrl(course.submitURL)
+            logging.debug("Parsing %s" % course.name)
+            for ex in exercises:
+                dbEx = Exercise()
+                dbEx.course = course.name
+                (dbEx.number, dbEx.published, dbEx.topic, dbEx.exerciseUrl,\
+                 dbEx.solutionUrl, dbEx.deadline, dbEx.uploadUrl) = ex
+                dbEx.put()
 
 class UploadHandler(webapp2.RequestHandler):
     def post(self):
@@ -174,5 +189,6 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                ('/removeAll', RemoveAllCourses),
                                ('/removeSelected', RemoveSelected),
                                ('/updateCourses', UpdateCourses),
+                               ('/updateExercises', UpdateExercises),
                                ('/upload', UploadHandler)],
                                debug=True)

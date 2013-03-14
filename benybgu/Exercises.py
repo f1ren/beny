@@ -7,7 +7,7 @@ import logging
 from logging import debug
 import re
 
-class Exersices(object):
+class Exercises(object):
     def __init__(self):
         pass
 
@@ -34,6 +34,7 @@ class Exersices(object):
         return urlfetch.fetch(url=url,deadline=60).content
 
     def getAllExercisesFromUrl(self, url):
+        logging.info("Getting exercises from %s" % url)
         return self._getAllExercises(self._getHtml(url))
 
 if __name__ == "__main__":
