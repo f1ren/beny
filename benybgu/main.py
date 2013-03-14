@@ -19,6 +19,7 @@ import os
 import webapp2
 import StringIO
 import json
+import logging
 
 from PhysWeb import PhysWeb
 
@@ -29,6 +30,11 @@ from Courses import Courses
 class Course(db.Model):
   name = db.StringProperty()
   submitURL = db.StringProperty()
+
+class Exercise(db.Model):
+    course = db.StringProperty()
+    number = db.StringProperty()
+    submitURL = db.StringProperty()
 
 def addCourse(name, url):
     course_key = db.Key.from_path('Course', name) 
@@ -43,7 +49,8 @@ def removeCourse(name):
 	course_key = db.Key.from_path('Course', name)
 	db.delete(course_key)
     
-def update():
+def updateCourses():
+    logging.info("Updating courses")
     c = Courses()
     courseList = c.getAllCourses()
     for course in courseList:
@@ -135,10 +142,15 @@ class RemoveSelected(webapp2.RequestHandler):
     
     
 class UpdateCourses(webapp2.RequestHandler):
-  def post(self):
-    update()
+  def get(self):
+    updateCourses()
     self.redirect('/')
     
+class UpdateExercises(webapp2.RequestHandler):
+    def get(self):
+        # TODO get all courses from DB
+        # TODO iterate all courses
+        # TODO put all exercises to DB
 
 class UploadHandler(webapp2.RequestHandler):
     def post(self):

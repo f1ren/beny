@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import urllib2
 import logging
 from logging import debug
+from logging import info
 import re
 
 COURSES_LIST_URL = "http://physweb.bgu.ac.il/COURSES/"
@@ -28,6 +29,7 @@ class Courses(object):
         for course in mainCoursesList:
             deepCourseList = self._getDeepCourseList(course)
             if not deepCourseList is None:
+                info(deepCourseList)
                 result += deepCourseList
         return result
 

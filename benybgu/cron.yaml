@@ -1,0 +1,5 @@
+cron:
+- description: Update courses list
+  url: /updateCourses
+  schedule: 1st friday of oct,march 17:00
+  timezone: Israel
