@@ -134,7 +134,7 @@ class RemoveSelected(webapp2.RequestHandler):
     self.redirect('/')
     
     
-class Update(webapp2.RequestHandler):
+class UpdateCourses(webapp2.RequestHandler):
   def post(self):
     update()
     self.redirect('/')
@@ -161,6 +161,6 @@ app = webapp2.WSGIApplication([('/', MainPage),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),
                                ('/removeSelected', RemoveSelected),
-                               ('/update', Update),
+                               ('/updateCourses', UpdateCourses),
                                ('/upload', UploadHandler)],
                                debug=True)
