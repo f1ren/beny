@@ -22,25 +22,11 @@ import json
 import logging
 
 from PhysWeb import PhysWeb
+from dbModels import *
+from ExercisesUpdater import ExercisesUpdater
 
 import cgi
 from Courses import Courses
-from Exercises import Exercises
-
-
-class Course(db.Model):
-  name = db.StringProperty()
-  submitURL = db.StringProperty()
-
-class Exercise(db.Model):
-    course = db.StringProperty()
-    number = db.StringProperty()
-    published = db.StringProperty()
-    topic = db.StringProperty()
-    exerciseUrl = db.StringProperty()
-    solutionUrl = db.StringProperty()
-    deadline = db.StringProperty()
-    uploadUrl = db.StringProperty()
 
 def addCourse(name, url):
     course_key = db.Key.from_path('Course', name) 
@@ -154,18 +140,8 @@ class UpdateCourses(webapp2.RequestHandler):
     
 class UpdateExercises(webapp2.RequestHandler):
     def get(self):
-        exercisesParser = Exercises()
-        courses = db.GqlQuery("SELECT * FROM Course")
-        for course in courses:
-            exercises =\
-                exercisesParser.getAllExercisesFromUrl(course.submitURL)
-            logging.debug("Parsing %s" % course.name)
-            for ex in exercises:
-                dbEx = Exercise()
-                dbEx.course = course.name
-                (dbEx.number, dbEx.published, dbEx.topic, dbEx.exerciseUrl,\
-                 dbEx.solutionUrl, dbEx.deadline, dbEx.uploadUrl) = ex
-                dbEx.put()
+        eu = ExercisesUpdater()
+        eu.update()
 
 class UploadHandler(webapp2.RequestHandler):
     def post(self):
