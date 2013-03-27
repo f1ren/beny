@@ -24,6 +24,7 @@ import logging
 from PhysWeb import PhysWeb
 from dbModels import *
 from ExercisesUpdater import ExercisesUpdater
+import utils
 
 import cgi
 from Courses import Courses
@@ -103,7 +104,16 @@ class JSON(webapp2.RequestHandler):
       result[course.name] = course.submitURL
     self.response.out.write(json.dumps(result, sort_keys=True))
     
-    
+class ExercisesOfCourse(webapp2.RequestHandler):
+  def get(self):
+    result = []
+    course_name = self.request.get('course')
+    exercises = db.GqlQuery("SELECT * FROM Exercise WHERE course = :1", \
+            course_name)
+    for exercise in exercises:
+        result.append(utils.to_dict(exercise))
+    self.response.out.write(json.dumps(result, sort_keys=True))
+
 class AddCourse(webapp2.RequestHandler):
   def post(self):
     course_name = self.request.get('name')
@@ -136,7 +146,6 @@ class RemoveSelected(webapp2.RequestHandler):
 class UpdateCourses(webapp2.RequestHandler):
   def get(self):
     updateCourses()
-    self.redirect('/')
     
 class UpdateExercises(webapp2.RequestHandler):
     def get(self):
@@ -160,6 +169,8 @@ class UploadHandler(webapp2.RequestHandler):
             
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/json', JSON),
+                               ('/courses', JSON),
+                               ('/exercises', ExercisesOfCourse),
                                ('/add', AddCourse),
 							   ('/remove', RemoveCourse),
                                ('/removeAll', RemoveAllCourses),

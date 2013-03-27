@@ -10,7 +10,7 @@ class Exercise(db.Model):
     course = db.StringProperty()
     number = db.StringProperty()
     published = db.StringProperty()
-    topic = db.StringProperty()
+    topic = db.StringProperty(multiline=True)
     exerciseUrl = db.StringProperty()
     solutionUrl = db.StringProperty()
     deadline = db.StringProperty()

@@ -26,8 +26,8 @@ class Exercises(object):
 
     def _getAllExercises(self, html):
         result = []
-        html = html[html.find('<div id="Home">'):]
-        bs = BeautifulSoup(html)
+        #html = html[html.find('<div id="Home">'):]
+        bs = BeautifulSoup(html, "lxml")
         for h2 in bs.findAll("h2"):
             if "Home Exercise" in h2.getText():
                 table = h2.findNext("table")
