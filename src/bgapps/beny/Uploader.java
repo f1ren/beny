@@ -16,11 +16,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 public class Uploader {
 	ProgressDialog dialog;
-	public void upload(Context context, String filePath) {
-		dialog = ProgressDialog.show(context, "Uploading", "");
+	Context context;
+	public void upload(Context userContext, String filePath) {
+		dialog = ProgressDialog.show(userContext, "Uploading", "");
+		context = userContext;
 		new AsyncPoster().execute(filePath);
 	}
     private class AsyncPoster extends AsyncTask<String, Void, String> {
@@ -56,6 +59,7 @@ public class Uploader {
 
         @Override protected void onPostExecute(String res) {
         	dialog.dismiss();
+        	Toast.makeText(context, res, Toast.LENGTH_LONG).show();
         }
     }
 }
